@@ -182,7 +182,8 @@
 
 
 \begin{longtable}{|p{4cm}|p{10cm}|}
-	\caption{List of current MySQL tables in the database\label{tab:mysqlTables}}\\
+	\caption{List of current MySQL tables in the database\label{tab:mysqlTables}}
+	\\
 	
 		\multicolumn{2}{l}{\textbf{Test related tables}} \\ \hline
 		tests & Table to store test information \\ \hline
@@ -242,7 +243,7 @@
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[width=0.9\textwidth]{img/perlWebApp2.png}\\	
-	\caption{An item detail listed by his serial number, the statistics can be seen on the right.}
+	\caption{Perl web app: item detail listed by his serial number}
 \end{figure}
 
 \par In the similar way as the Java uploaders, the Perl script has some issues in it's design that prevent any easy alternations of it's functionality. The Perl web interface is purely utilitarian, it lacks the MVC design (the HTML template is directly incorporated into the Perl code and the controllers are nonexistent) and have other issues are similar to the Java uploaders described in section~\ref{sec:javaUploaders}, like the lack of prepared statements or documentation of any kind.
@@ -256,10 +257,9 @@
 \label{sec:notImplemented}
 \par As the production database is currently still being developed, it is missing several key parts for it’s proper functionality:
 
-%ToDo zdroje
-%ToDo zdroje elaborovat
+%ToDo Zdroje elaborovat
 \begin{itemize}
-\item The storage of the pixel detector part %ToDo tak jak
+\item The storage of the pixel detector part
 \item Store information that assembly is composed of multiple assemblies. The assemblies should be interconnected to simulate the tree-like structure of the detector construction. 
 \item The batches are excluded from the tree-like structure of the inner detector construction
 \item Details of performance quality assurance process by testing multiple stages of the component assembly
@@ -290,8 +290,13 @@
 \par The old STK database, 
 %Todo Ozdrojovat
 
-The following data are \cite[slide 4]{cambridgeSctPresentation}
+The table~\ref{tab:sctUsage} shows the usage statistics from the old SCT component database.
+
+\begin {table}[H]
 \begin{center}
+	\caption{The SCT database statistics~\cite[slide 4]{cambridgeSctPresentation}}
+	\label{tab:sctUsage} 
+	
     \begin{tabular}{ | l | l |}
     \hline
     Item & Amount \\ \hline
@@ -305,9 +310,12 @@ The following data are \cite[slide 4]{cambridgeSctPresentation}
 	Inserted test results & 1 122 196\\ \hline
 	Inserted assembly test definitions & 4 571\\ \hline
 	Inserted assemblies & 130 210\\ \hline
-    \end{tabular}
-\end{center}
 
+    \end{tabular}
+
+\end{center}
+\end{table}
+    
 \subsection{Usage predictions}
 - 20 000 stip modules, 10 000 pixel modules
 - currently ~24 countries on the candidate lists, more institutions per country, most of them working with both strips and pixels
@@ -318,7 +326,7 @@ The following data are \cite[slide 4]{cambridgeSctPresentation}
 — Contact person in the factory
 — Manufacturers
 
-%ToDo my My usage prediction, nějaký grafík
+%ToDo My usage prediction, nějaký grafík
 Just by the number of modules we can estimate
 
 \section{Summary}

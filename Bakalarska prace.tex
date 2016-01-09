@@ -5,7 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{titlesec}
-\usepackage[left=2.5cm,right=2.5cm,top=3cm,bottom=3cm]{geometry}
+\usepackage[left=3.5cm,right=2.0cm,top=2.5cm,bottom=2.5cm]{geometry}
 
 
 %nastavení fontů
@@ -16,6 +16,8 @@
 %\setmainfont{Cambria}
 %\setsansfont{Calibri}
 \setsansfont{Helvetica}
+
+%ToDo odsadit každý další odstavec, odstavce by neměly mít mezery 
 
 %bezpatkové nadpisy
 \partfont{\normalfont\sffamily\bfseries}
@@ -42,7 +44,7 @@
 \patchcmd{\abstract}{\null\vfil}{}{}{}
 
 %odsazení paragrafů prázdným řádkem
-\usepackage[parfill]{parskip}
+%\usepackage[parfill]{parskip}
 
 %command pro novou prázdnou stránku
 \usepackage{afterpage}
@@ -96,7 +98,7 @@
 \include{preamble/intropage}
 
 %Prázdná stránka
-\afterpage{\blankpage}
+\include{preamble/thesisGoal}
 \include{preamble/decleration}
 \include{preamble/acknowledgements}
 \include{preamble/firstNumberedPage}
@@ -115,24 +117,12 @@
 \include{chapters/5_API-implementation}
 \include{chapters/6_API-tests}
 \include{chapters/7_Website}
-
-
-%ToDo Thesis summary
-
 \include{chapters/Summary}
 
-%Seznam použitých zdrojů
 \include{appendix/bibliography}
-
-%Seznam obrázků
-\listoffigures
- 
-%Seznam tabulek
-\listoftables
-
-\chapter{Extended summary}
-%ToDo Extended summary
-
+\listoffigures %Seznam obrázků
+\listoftables %Seznam tabulek
+\include{appendix/extendedSummary}
 \include{appendix/appendicies}
 
 
