@@ -1,0 +1,330 @@
+\chapter{ITk upgrade}
+\label{chap:itkUpgrade}
+
+\par The following part is the introduction to the problematics of ITk layout and documents the current status of the component database.
+
+\section{The Inner Tracker overview}
+\par The ATLAS\footnote{\textbf{A} \textbf{T}oroidal \textbf{L}HC \textbf{A}pparatu\textbf{S}} experiment is one of the two general purpose experiments (the other being CMS) installed on the Large Hadron Collider (LHC) at the European Organization for Nuclear Research (CERN). Inside the LHC, bunches of 10\textsuperscript{11} protons will collide 40 million times per second.\cite[page 10]{atlasExperiment}
+
+
+\par The ATLAS experiment is installed around the cross-section point\cite[page 10]{atlasExperiment} where the protons, after being accelerated on the LHC, collides in the measured collisions, which are tracked using the detectors on the experiment. 
+
+\par The ATLAS is ~45 meters long and more than 25 meters high, and weighs about 7 000 tons. \cite{atlasweb}. The Inner detector (or inner tracker) is a cylindrical device 5 meters long with 2.3 meters in diameter \cite[page 10]{atlasExperiment} located in the very centre of the detector. It contains a large number of the high-resolution detectors of two main types: pixel and strips, which are positioned in several layers to maximise the measured area. The inner detector is the part of the experiment that is closest to the point of collision and measures the momentum of each charged particle. \cite{atlasitkweb}
+
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.6\textwidth]{img/itk_schema.jpg}\\	
+	\caption{A schema of the ATLAS Inner tracker \cite{atlasitkweb}}
+\end{figure}
+
+\par The difference between the two main types of detectors, strips and pixels, is in their construction, purpose and location on the ITk central solenoid. The pixel detectors are " the high-precision detector layers, which are arranged on concentric cylinders around the beam axis, while the end-cap detectors (strips) are mounted on disks perpendicular to the beam axis".  \cite[page 14]{atlasExperiment}
+
+\par For the purpose of this thesis, all the other parts of the detector, e.g. calorimeters, are opted out from this description, since both the current Component database and the proposed API layer does not include them in any of the use cases.
+
+\section{The upgrade process}
+\par The Inner tracker is scheduled for a replacement with the construction of the new detector beginning in the early 2017. The upgrade process involves the replacement of the entire detector with the newly designed detector that can measure collisions with much higher precision.
+
+\par The new detector should be installed in 2018 and should be in operation until 2035. \cite{sverma}
+
+\par Currently 94 academic institutions from 20 countries are cooperating in the effort to prepare and build the new Inner tracker. To synchronise the effort, centralise component database is being prepared to record and hold the following data: \cite[slide 4]{databasePresentation}
+
+\begin{itemize}
+	\item components used (mechanical, thermal, electrical, performance),
+	\item performance for quality assurance process,
+	\item details of construction of composite objects,
+	\item physical location for logistical control,
+	\item details of the production quality (mainly tests),
+	\item any details for the future.
+\end{itemize}
+
+\par These requirements are more thoroughly explored in the following sections.
+
+\section{Terminology}
+\par The basic level of knowledge about the LHC, ATLAS experiment and ITk functionality is expected in this thesis. Some commonly used terms are described below:
+\begin{description}
+   \item[ITk] \hfil \\
+		The Inner tracker (or the Inner detector) is the most inner part of the ATLAS experiment. It is used for the measuring of the momentum of each charged particle. \cite{atlasweb}
+   \item[SCT database] \hfil \\
+      	The database for the old inner detector
+      	SCT (Semi-Conductor Tracker) is the middle section of the inner detector. \cite[17]{sverma} The SCT database is the original production database used by the last version of the ITk. Build on ORACLE 9i it was the primarily used database for the old ITk. \cite[25]{sverma} The usage statistics from it's production usage are listed in section~\ref{sec:databaseUsage}.
+   \item[The Production database] \hfil \\
+	The initial version of the Production database (Also "ITk database" or "Component database") was implemented in 2006 by Cambridge University as a next generation SCT database. \cite[p27]{sverma} It was designed for the purposes of the SCT and it lacks some advanced features required by institutions working on other parts of the inner tracker. The missing features are described more closely in the section~\ref{sec:notImplemented}.
+	\item[Item] \hfil \\
+	An Item is a general term for any component used when building the ITk structure. The items are stored inside the MySQL table \emph{items} \cite[p82]{sverma} and more information is added to them using the related MySQL tables.
+	
+	\item[Module] \hfil \\
+	Although the designation \emph{module} is often used as a general designation for any component used in the ITk structure, the the term \emph{module} describes "a single silicon sensor with readout hybrid (connection via wire bonds)"	 \cite[slide 13]{lankfordReviewStrips}. The modules mentioned in this thesis are mostly pixel or a strips detectors, that are to be mounted on a support structure (stave or petal) \cite[slide 13]{lankfordReviewStrips}.
+	
+	Due to the generalisation of this term, clarification is usually needed.
+	
+	\item[Assembly] \hfil \\
+		An assembly is a general designation of a component, that is composed of multiple parts, each of them recorded separately inside the component database.
+
+		Currently, the MySQL table named \emph{assemblies} is present in the schema, \cite[p82]{sverma} but with the current implementation and its relation to the main table \emph{items} it fails to properly implement the representation of the tree-like structure of the whole ITK construction. This topic is further elaborated in the section~\ref{sec:notImplemented}. 
+		
+	\item[Stave/Petal] \hfil \\
+		A \emph{stave} or /emph{petal} is the name used for the final assembly of pixel/strips modules intended to be mounted inside ITk. Beside the detectors themselves, it provides the supporting structure, cooling pipes and electrical services, like power or data cables, for the detector's functionality. \cite[p20]{sverma}
+		
+	
+		\begin{figure}[!ht]
+			\centering
+			\includegraphics[width=0.8\textwidth]{img/moduleOnStave.jpg}\\	
+			\caption{The placement of module (Strips) on the stave \cite[slide 14]{lankfordReviewStrips}.}
+		\end{figure}
+
+
+	\item[Pixel] \hfil \\
+		The pixel detector is on of the two main types of the detector. Mounted on staves, the pixels are placed closest to the beam pipe
+	\item[Strips] \hfil \\
+		The strips are the second type of detectors used inside the ITk structure. The are mounted around the central solenoid (above pixels) and as end caps for the barrel.
+
+	\item[Test] \hfil \\
+		Due to the long life expectancy of the ITk and the operation conditions (every part is exposed to radiation during the collision) every component used on the ITk construction has to be properly tested before it can be shipped and assembled into the detector main structure. \cite{vacek}
+	
+
+		Test is a generalisation used for the various processes ensuring the quality of all components used for ITk construction. In the context of the Production database, we refer usually refer to all results of such processes as \emph{test}, that are to be recorded and stored inside the database.
+		
+		The production database has to store all the results for every component for later analysis, if anything breaks in the future.
+		
+		The database can store various form or types of test results such as scans, chip results, DCS  \footnote{ATLAS \textbf{D}etector \textbf{C}ontrol \textbf{S}ystems \cite{cernDcs}} status or DAQ\footnote{SCTDAQ is a software package which has evolved for testing SCT hybrids and modules at the testbeam, systemtest, PS irradiations, and many institute labs. It runs on a Windows PC. \cite{cernDaq}} information. \cite[p31]{sverma}
+		
+	\item[Institution] \hfil \\
+		Institutions referred in this thesis are 3th party universities, manufactures or various stakeholders of the ITk upgrade project. The are the primary users of the Component database.
+\end{description}
+
+
+
+\section{The Production database}
+\label{sec:theProductionDatabase}
+\par The process of building and subsequently maintaining the new inner detector requires a centralised software solution to keep track of all its components. For this purpose the Production database project has been launched at CERN following the plans for the detector upgrade.
+
+\par For the clarification is should be noted that for the purpose of this thesis the term \emph{Production database} implies the entire ICT solution (hosting, applications, client software etc.) and not just relational database as common in the field of IT.
+
+\par The two main functions of the ITk production database can be generalized to data storage (recording items) and data access (report and anylises). These two main groups of use cases are explored in the sections \ref{sec:currentDatabaseStatus} and \ref{sec:notImplemented} of this thesis.
+
+
+\subsection{Database users}
+\par According to Igor Šverma, three users for the component database have been identified so far \cite[page 22]{sverma}. In this context, the term user implies the user group instead of the actual physical user. These groups are:
+
+\begin{description}
+	\item[Automated systems] with the rights to write in the database (scans, measurements etc.),
+	\item[Atlas ID Community] with the right to read and upload tests, items, assemblies and shipments,
+	\item[Manufactures] with the right to upload files to for items.
+\end{description}
+
+
+\par Steve McMahon expands this subject further more in his presentation given on the Prague workshop in June 2015 \cite{databasePresentation} by stating following groups as the basic database users:
+
+\begin{itemize}
+	\item testing departments on universities,
+	\item manufacturing departments on universities,
+	\item contact persons in the factories,
+	\item industrial partners (Manufacturers).
+\end{itemize}
+
+\par The McMahon's specifications shows, that more detailed privilege could be implemented for the group that Šverma generalises as a Atlas ID Community to ensure the consistency of the database content.
+
+\par The question of Automatic system uploads remains unsolved in the Šverma's thesis and it is expanded in section \ref{sec:notImplemented}.
+
+
+
+\section{Current database status}
+\label{sec:currentDatabaseStatus}
+
+\par At this moment, the Component Database is in the phase of the development, although it's design is missing some important items, which are explored in section \ref{sec:notImplemented}. The three main components of the database have been prepared in the previous years:
+
+\begin{itemize}
+	\item MySQL database,
+	\item Java applets (uploaders),
+	\item Perl web application.
+\end{itemize}
+
+
+\par The relation between these parts is shown on the figure \ref{fig:currentDatabaseStatus}.
+
+	
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.8\textwidth]{img/itkCurrentStatus.jpg}\\	
+	\caption{The current Component database \cite[slide 4]{presCurrentDatabaseStatus}.}
+	\label{fig:currentDatabaseStatus}
+\end{figure}
+
+
+\par The database is currently running on the dedicated Linux server hosted at CERN network with the replication server established in Prague \cite[slide 5]{presCurrentDatabaseStatus}. The new production server is being installed at the Institutes of Physics of the Czech Academy of Sciences \cite[slide 10]{presCurrentDatabaseStatus} which should serve as the primary database server in the future.
+
+
+\subsection{Java applets}
+\label{sec:javaUploaders}
+\par Alternatively referred to as  \emph{Java uploaders}, these are the sets of scripts written in Java language by the ATLAS community\footnote{Dave Robinson, Thomas Kluge, Carlos Garcia-Argos} which are intended to be used as the primary way to interact with the Production database. The work on uploaders began in 2008\footnote{Based on class comments inside the source codes}. The applets are worked by console commands and they are interacting with the MySQL server directly using JDBC\footnote{\textbf{J}ava \textbf{D}ata\textbf{B}ase \textbf{C}onnectivity} connection.
+
+\par Java uploaders lack any proper documentation (both in-code or external) and they do contain all the business logic of the component database (MySQL database servers only as the storage), most of which is contained in one file, that serves as the Model class, called \emph{UMySql.java}.
+
+\par From the brief study of the source codes of Java uploaders, they do lack some patterns that should be common standard in the field, namely:
+
+\begin{description}
+	\item [Documentation] written documentation of the functionality (in prose) to explain the basics to uninitiated developer,
+	\item [In code comments] written inline comments explaining the execution of code, which are especially helpful in longer classes.
+	\item [SQL transactions] The MySQL operations are executed sequentially and are not wrapped in the SQL transaction. If anything occurs during the application run (e.g. connectivity loss or database error), no rollback is possible and the data consistency in the database could be compromised.
+	\item [Prepared statements] The MySQL queries lack proper validation and could be used to compromise database content using the SQL injection. 
+	\item [Unit test] that are designed to test individual methods. Although we can presume that every method was manually tested during the development, any change to the code threatens to compromise the functionality, since thorough manual testing is required upon every change.
+	\item [Refactoring] that could help to clean the code structure. With most of the model layer in one file, this could simplify the in-code navigation for the developer.
+\end{description}
+
+\paragraph{Despite these missing patterns, the Java uploaders do the job they were designed for.} However based on my existing knowledge, I would hesitate to call them the optimal and longterm sustainable solution, since they provide room for human and system errors and the entry threshold for new developers is extremely high, mainly due to it's lack of proper documentation and automated tests.
+
+
+\subsection{MySQL database (Data storage)}
+\par The Component database stores the data about the ITk inside the MySQL database, composed of 32 relation tables. The table \ref{tab:mysqlTables} lists all current SQL tables as the summary from more elaborate description in \cite[pages 29-35]{sverma} and \cite[page 58]{sverma}. The complete schema (split into 3 parts for better readability) of the current MySQL database created in \emph{MySQL Workbench} is in the appendix~\ref{app:mysqlSchema}.
+
+\par At this moment, the only way for the database users to insert or update database records is to use the prepared Java uploaders.
+
+
+\begin{longtable}{|p{4cm}|p{10cm}|}
+	\caption{List of current MySQL tables in the database\label{tab:mysqlTables}}\\
+	
+		\multicolumn{2}{l}{\textbf{Test related tables}} \\ \hline
+		tests & Table to store test information \\ \hline
+		chipresults & Store chip results, one entry per hybrid/chip/test parameter.\\ \hline
+		comments & Table that stores comments for tests\\ \hline
+		chipstatus & Stores the saves chip status as a String \\ \hline
+		daqinfo & Stores DAQ information\\ \hline
+		dcsdata & Stores DCS status\\ \hline
+		scans & Contains test scan information\\ \hline
+		defects & If any defect occurs during the test, it is stored here\\ \hline
+		defect\_descr & In this table there are definitions of defects.\\ \hline
+		raw\_data & Designed to store optional raw data for the test\\ \hline
+		asicresults & \emph{todo} \\ \hline  %ToDO ??dafuq
+		genericdata & The unused table for test data\\ \hline
+				
+		\multicolumn{2}{l}{\textbf{Item related tables}} \\ \hline
+		items & This table is the main table to store items in the database. \\ \hline
+		locations &  includes id of location from table 'locations', and column 'ctype' is there as a relation with the table 'ctypes'.\\ \hline
+		persons & This table saves names of all persons.\\ \hline
+		ctypes & Table where types of components are defined.\\ \hline
+		ctype\_mfrs &  Identifies which manufacturers are able to create components (of a related type)\\ \hline
+		assemblies & information and records the way items are assembled together\\ \hline
+		assm\_descr & Contains the description of the assembly\\ \hline
+		manufacturers & Holds information about manufacturers\\ \hline
+		batches & Stores the information about items that are supplied in batches \\ \hline
+		btype\_mfrs & Identifies which manufacturers are able to create batch items (of a related type)\\ \hline
+		btypes & Defines the possible types of batches\\ \hline
+
+		\multicolumn{2}{l}{\textbf{Data storage related tables}} \\ \hline
+		generic\_categories & Stores the categories for the generic data entries\\ \hline
+		genericdates & Stores generic dat of MySQL \emph{date} datetype\\ \hline
+		genericfiles & Stores generic dat of MySQL \emph{longblob} datetype\\ \hline
+		genericfloats & Stores generic dat of MySQL \emph{float} datetype\\ \hline
+		genericints & Stores generic dat of MySQL \emph{int(11)} datetype\\ \hline
+		genericstrings & Stores generic dat of MySQL \emph{varchar(80)} datetype \\ \hline
+		
+
+
+		\multicolumn{2}{l}{\textbf{Configuration related tables}} \\ \hline
+		configuration & This table supplements the missing configuration file (since there is no application above SQL) and contains the current version of the database \\ \hline
+		testnames &  Stores names of all recognised tests \\ \hline
+		variables & The table is intended for saving variable labels. \\ \hline
+		
+\end{longtable}
+
+
+%ToDo missing indexes over more columns
+
+
+\subsection{Perl web application (Data access)}
+
+%ToDo Využívání dat
+\par Reports and research, popsání stávajícího rozhraní v Perlu
+
+\par The last finished part of the Component database is the Perl web application, written by Dave Robinson. It simple design allow user (without any autorisation) to access the basic statistics about the database content and to list any of the recorded results item or the test result based on it's serial number.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=0.9\textwidth]{img/perlWebApp2.png}\\	
+	\caption{An item detail listed by his serial number, the statistics can be seen on the right.}
+\end{figure}
+
+\par In the similar way as the Java uploaders, the Perl script has some issues in it's design that prevent any easy alternations of it's functionality. The Perl web interface is purely utilitarian, it lacks the MVC design (the HTML template is directly incorporated into the Perl code and the controllers are nonexistent) and have other issues are similar to the Java uploaders described in section~\ref{sec:javaUploaders}, like the lack of prepared statements or documentation of any kind.
+
+\par Given this limitations, the Perl app is not suitable for any future development and, after proper analysis of the user group's requirements the same functionality will be replicated in the new Web application, but using the implemented API layer in the chapter~\ref{chap:webApp}.
+
+\par The perl scripts are used for accessing the database content in the form of the simple web interface.
+
+
+\section{Not implemented parts and future development}
+\label{sec:notImplemented}
+\par As the production database is currently still being developed, it is missing several key parts for it’s proper functionality:
+
+%ToDo zdroje
+%ToDo zdroje elaborovat
+\begin{itemize}
+\item The storage of the pixel detector part %ToDo tak jak
+\item Store information that assembly is composed of multiple assemblies. The assemblies should be interconnected to simulate the tree-like structure of the detector construction. 
+\item The batches are excluded from the tree-like structure of the inner detector construction
+\item Details of performance quality assurance process by testing multiple stages of the component assembly
+\item Store test results	 in relation to item not the facility that conducted the test
+\item Shipments tracking (what was shipped (including item batches and multiple items per shipment), from where, to where, dates and persons involved)
+\item Reporting (Enter item SN and get all details, files and position in the structure)
+\item Reporting QA (show tests results, what parts are failing, what tests)
+\item Upload more results/files using the batch upload
+\item Upload files (tests \& descriptions) from proprietary software like labview/stcdaq/probestation code
+\item Registration and assignment of serial numbers to hybrids, on receipt of the hybrid panel by the institute
+\item User autorization/authentization, solution for data security
+\item Use CERN 14 digits convention, but some parts have serials outside the range
+\item The support of shipment tracking on the database level
+\item The selection and implementation of a suitable hosting solution
+\item Proper versioning of the source codes in a public repository
+\item The question of automated systems
+\end{itemize}
+
+\paragraph{Several of these changes are blockers for the development of the API,} since they could significantly change the business logic of the ITk database upon which the API should be build. These blockers have to be removed %ToDo
+
+\section{Database usage and limits}
+\label{sec:databaseUsage}
+%ToDo Tohle přepsat
+\par First part of this thesis considers itself with the gathering of necessary materials for proper development. This includes mainly the detailed description of the current database usage (internal processes) and, if possible, the usage data of the current ITk database. Such data are going to be used for proper selection of programming languages and other technologies for the REST API layer and web fronted implementation. If they will be kept up to date, the acquired data will also provide a highly valuable assets for the future database development in the upcoming years.
+
+
+\subsection{Old database data}
+\par The old STK database, 
+%Todo Ozdrojovat
+
+The following data are \cite[slide 4]{cambridgeSctPresentation}
+\begin{center}
+    \begin{tabular}{ | l | l |}
+    \hline
+    Item & Amount \\ \hline
+	Database size & 7 GB\\ \hline
+	Num. of rows in one table & approx. 38 000 000\\ \hline
+	Inserted item types & 220 \\ \hline
+	Inserted items & 349 686\\ \hline
+	Inserted shipments & 4 506\\ \hline
+	Inserted num. of shipped items & 632 508 \\ \hline
+	Inserted types of test & 52\\ \hline
+	Inserted test results & 1 122 196\\ \hline
+	Inserted assembly test definitions & 4 571\\ \hline
+	Inserted assemblies & 130 210\\ \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Usage predictions}
+- 20 000 stip modules, 10 000 pixel modules
+- currently ~24 countries on the candidate lists, more institutions per country, most of them working with both strips and pixels
+- Max. hundreds per institution
+- Multiple types of users in every institution
+— University - testing department
+— University - manufacturing department
+— Contact person in the factory
+— Manufacturers
+
+%ToDo my My usage prediction, nějaký grafík
+Just by the number of modules we can estimate
+
+\section{Summary}
+\par As we can see, the Component database is in still in the early stage of it's lifecycle. Although a~large effort has been put to some crucial parts like test storage or parameter generalisation and the SQL schema is nearly in its final iteration,  the overall design still lacks some key features that have to be resolved and implemented before the phase of API design can commence.
+
+\par In the next chapter, I will describe the goal of the proposed API layer, explore current implementation of the record insertion and propose some improvements that the API can bring into the component database system. 
+
+\par I will try to resolve the missing functionality at the beginning of the design phase in the chapter~\ref{chap:apiArchitecture}.
+

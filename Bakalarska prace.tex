@@ -1,0 +1,139 @@
+\documentclass[oneside,openany,11pt,a4paper,fontsize=11pt]{report}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage[left=2.5cm,right=2.5cm,top=3cm,bottom=3cm]{geometry}
+
+
+%nastavení fontů
+\usepackage{sectsty}
+\usepackage{fontspec}
+
+%ToDo Zjistit, jestli to musí být tyto fonty
+%\setmainfont{Cambria}
+%\setsansfont{Calibri}
+\setsansfont{Helvetica}
+
+%bezpatkové nadpisy
+\partfont{\normalfont\sffamily\bfseries}
+\chapterfont{\normalfont\sffamily\bfseries}
+\sectionfont{\normalfont\sffamily\bfseries}
+\subsectionfont{\normalfont\sffamily\bfseries}
+
+%Vyhození názvu kapitoly
+\titleformat{\chapter}{\sffamily\huge}{\thechapter.}{20pt}{\huge}
+
+%řádkování
+\usepackage{setspace}
+\renewcommand{\baselinestretch}{1.5}
+
+% zarovnání nadpisu abstraktu doleva
+\usepackage{abstract}
+\renewcommand{\absnamepos}{flushleft}
+\setlength{\absleftindent}{0pt}
+\setlength{\absrightindent}{0pt}
+% abstrakt bezpatkovým písmem
+\renewcommand{\abstractnamefont}{\sffamily\large\bfseries}
+% zrušení vertikálního centrování stránky abstraktu
+\usepackage{etoolbox}
+\patchcmd{\abstract}{\null\vfil}{}{}{}
+
+%odsazení paragrafů prázdným řádkem
+\usepackage[parfill]{parskip}
+
+%command pro novou prázdnou stránku
+\usepackage{afterpage}
+
+%vytvoření příkazu pro prázdnou stránky
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+    
+%vytvoření příkazu pro podpisovou linku
+\newcommand*{\SignatureAndDate}[1]{    
+    \par\noindent\makebox[2.5in][l]{In \makebox[1.0in]{\dotfill} on \makebox[1.0in]{\dotfill}} \hfill\makebox[2.0in]{\dotfill}
+    \par\noindent\makebox[2.5in]{~}      \hfill\makebox[2.0in]{#1}
+    
+
+}
+%sloupce
+\usepackage{multicol}
+
+%obrázky
+\usepackage{tikz}
+\usepackage{geometry}
+
+%odkazy
+\usepackage{hyperref}
+
+%ToDo Harvardské citace
+%\usepackage{natbib}
+%\setcitestyle{round}
+
+%vícestránkové tabulky
+\usepackage{longtable}
+
+\usepackage{float}
+
+\usepackage[toc,page]{appendix}
+
+%přejmenování seznamů
+\renewcommand{\listfigurename}{List of images}
+\renewcommand{\listtablename}{List of tables}
+
+
+\begin{document}
+
+%vypnout číslování, zapínáme až na první číslované stránce
+\pagenumbering{gobble}
+
+\include{preamble/coverpage}
+\include{preamble/intropage}
+
+%Prázdná stránka
+\afterpage{\blankpage}
+\include{preamble/decleration}
+\include{preamble/acknowledgements}
+\include{preamble/firstNumberedPage}
+\include{preamble/abstract}
+
+%table of contents
+\setcounter{page}{3}
+\tableofcontents
+\pagebreak
+
+%Thesis here
+\include{chapters/1_Introduction}
+\include{chapters/2_ITK-upgrade}
+\include{chapters/3_API-goal}
+\include{chapters/4_API-architecture}
+\include{chapters/5_API-implementation}
+\include{chapters/6_API-tests}
+\include{chapters/7_Website}
+
+
+%ToDo Thesis summary
+
+\include{chapters/Summary}
+
+%Seznam použitých zdrojů
+\include{appendix/bibliography}
+
+%Seznam obrázků
+\listoffigures
+ 
+%Seznam tabulek
+\listoftables
+
+\chapter{Extended summary}
+%ToDo Extended summary
+
+\include{appendix/appendicies}
+
+
+\end{document}

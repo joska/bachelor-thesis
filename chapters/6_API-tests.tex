@@ -1,0 +1,20 @@
+\chapter{API tests and ensuring future consistency}
+\label{chap:apiTests}
+%ToDo Capter API tests
+ToDo:
+\begin{itemize}
+	\item dummy data (e.g. fixtures)
+	\item extreme load tests to simulate the peaks in the lifecycle
+	\item automated API tests for future developers
+	\item code checkers to ensure the code consistency
+	\item deprecated application exception for old java uploaders
+	\item test enviroment for future developers
+\end{itemize}
+
+
+\par Base on the usage predictions, the example big data needs to be generated to simulate the real working conditions of the production database (fixtures).
+
+\par Direct access to the database should be disabled and only the database user used by the API application should be able to directly interact with the MySQL installation on the production server. In that case, all future requests for new features have to be implemented as an API request first, which in return guarantees that the backward compatibility is checked by automated tests when releasing an updated version.
+
+\par The situation, when somebody in the 3th party institution is not able to get requested information from the web interface because somebody irreversibly changed the data integrity by bypassing the API via the socket connection to the database, has to prevented.
+

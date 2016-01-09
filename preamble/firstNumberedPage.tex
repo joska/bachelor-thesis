@@ -1,0 +1,23 @@
+
+%První číslovaná strana
+\newpage
+
+%zde zapínáme znovu číslování stránek
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\tikz[remember picture,overlay] \node[opacity=1.0,inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{img/prvni_cislovana_strana.jpg}};
+
+
+
+\vspace*{\stretch{2}}
+\begin{center}
+\begin{minipage}{.6\textwidth}
+	\begin{center}
+	\sffamily{\large
+	{The Web Service API layer for the Component Database for ATLAS Inner Detector~at~LHC}}
+	\end{center}
+\end{minipage}
+\end{center}
+\vspace{\stretch{3}}
+\clearpage

@@ -1,0 +1,36 @@
+\chapter{API goal}
+\label{chap:apiGoal}
+\par The main goal of this thesis is to propose and implement a functional, usable and deployable REST API application for the Production database. The REST API should replace the direct access to MySQL database used by Java applets.
+
+\par While the direct database access provides easy and comfortable solution for a single developer, it is not suitable for the software solution of requested size and lifespan, as it lacks some advance features that are required:
+
+\begin{itemize}
+	\item request tracking with easy to analyse logs
+	\item ACL implementation
+	\item data consistency assurance (anyone with write access can adjust the table content)
+	\item testability in the case that someone has changed the database layout
+	\item protection from table deadlocks
+	\item query analyse for debugging (although MySQL platform does offer the „Slow query log” it is very difficult to pair the problematic SQL queries to specific time when the server monitoring has encountered some performance issue)
+	\item no development environment for new developers
+\end{itemize}
+
+With this in mind, the API architecture needs to be devised before the implementation phase to prevent any unwanted results when working with the production database.
+
+
+\par Based on the facts stated in section~\ref{sec:theProductionDatabase} of the thesis, the main usage of the API should mirror the use cases of the MySQL database and can be divided in the same way as the usage of the component database itself: date selection and date insertion/update.
+
+
+\par Another possible issue that could occur in the future if the database's lifetime is the performance issue regarding the SQL SELECT queries over multiple items having the generic values.
+	
+\par From my experience\footnote{Work at Brand New s.r.o., Prague 2014}, trying to emulate the free key:value structure using the generic param/value rows in SQL lead to significant performance issues in the length of the query execution with the number of rows exceeding 1 million rows.
+
+\par The API layer will easily solve this issue by caching the relations as proxy objects and serving those preserialized proxies upon new http request.
+	
+
+
+%ToDo citovat už tady nějaké věci
+
+%ToDO stávající popis architetktury, proč je to blbě
+\ref{fig:currentDatabaseStatus}
+
+%ToDO Má představa funkčnosti
